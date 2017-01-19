@@ -1,6 +1,9 @@
 (ns clj-music-day.core
   (:gen-class)
-  (require [clojure.java.io :as io]))
+  (require [clojure.java.io :as io])
+  (require [clj-time.core :as t])
+  (require [clj-time.format :as f])
+  (require [clj-time.local :as l]))
 
 
 ;; files are different from resources
@@ -20,6 +23,11 @@
     (repeatedly
       (let [gen (java.util.Random. seed)]
         (fn [] (.nextInt gen limit))))))
+
+(defn seed-from-day-of-year
+  "return a good random seed from the year and day of year"
+  []
+  (int (read-string (f/unparse custom-formatter (l/local-now)))))
 
 (defn schedule
   "Return the schedule of the practice."
@@ -46,6 +54,8 @@
   []
   (str "hand-independence-practice.\n"))
 
+(def custom-formatter (f/formatter "yyyyDDD"))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -56,7 +66,9 @@
                   (key-practice)
                   (chord-method-practice)
                   (hand-independence-practice)
-                  (second (randomish 3 1024))))
+                  (f/unparse custom-formatter (l/local-now)) "\n"
+                  (seed-from-day-of-year) "\n"
+                  (second (randomish (seed-from-day-of-year) 1024))))
 
     ;(doseq [file (rest files)] (println (slurp file)))
     ;std::string MusicDay::describe() {
