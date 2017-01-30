@@ -3,26 +3,25 @@
   (require [clojure.java.io :as io])
   (require [clj-time.core :as t])
   (require [clj-time.format :as f])
-  (require [clj-time.local :as l]))
-
+  (require [clj-time.local :as l])
+  (require [random-seed.core :as rs]))
 
 ;; files are different from resources
 (def directory (io/file "resources/music_day_files"))
 (def files (file-seq directory))
 
 ;; resources are different from files
-(def data (io/resource "music_day_files/music_day-keys.txt"))
 (def schedule-data (io/resource "music_day_files/music_day-schedule.txt"))
+(def chord-methods-data (io/resource "music_day_files/music_day-chord_methods.txt"))
+(def chord-types-data (io/resource "music_day_files/music_day-chord_types.txt"))
+(def directions-data (io/resource "music_day_files/music_day-chord_methods.txt"))
+(def keys-data (io/resource "music_day_files/music_day-keys.txt"))
+(def left-hand-data (io/resource "music_day_files/music_day-left_hand.txt"))
+(def right-hand-data (io/resource "music_day_files/music_day-right_hand.txt"))
+(def scale-articulations-data (io/resource "music_day_files/music_day-scale_articulations.txt"))
+(def scale-methods-data (io/resource "music_day_files/music_day-scale_methods.txt"))
 
-(defn randomish
-  ([seed]
-    (repeatedly
-      (let [gen (java.util.Random. seed)]
-        (fn [] (.nextInt gen)))))
-  ([seed limit]
-    (repeatedly
-      (let [gen (java.util.Random. seed)]
-        (fn [] (.nextInt gen limit))))))
+(def custom-formatter (f/formatter "yyyyDDD"))
 
 (defn seed-from-day-of-year
   "return a good random seed from the year and day of year"
@@ -54,12 +53,11 @@
   []
   (str "hand-independence-practice.\n"))
 
-(def custom-formatter (f/formatter "yyyyDDD"))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [a 5]
+  (let [seed seed-from-day-of-year]
     (println "-----------------")
     (println (str (schedule)
                   (day-practice)
@@ -67,8 +65,14 @@
                   (chord-method-practice)
                   (hand-independence-practice)
                   (f/unparse custom-formatter (l/local-now)) "\n"
-                  (seed-from-day-of-year) "\n"
-                  (second (randomish (seed-from-day-of-year) 1024))))
+                  (seed) "\n"
+                  (rs/set-random-seed! (seed))
+                  (rs/rand-int 32) "\n"
+                  (rs/rand-int 32) "\n"
+                  (rs/rand-int 32) "\n"
+                  (rs/rand-int 32) "\n"
+                  (rs/rand-int 32) "\n"
+                  ))
 
     ;(doseq [file (rest files)] (println (slurp file)))
     ;std::string MusicDay::describe() {
