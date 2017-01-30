@@ -4,7 +4,8 @@
   (require [clj-time.core :as t])
   (require [clj-time.format :as f])
   (require [clj-time.local :as l])
-  (require [random-seed.core :as rs]))
+  (require [random-seed.core :as rs])
+  (require [clojure.string :as string]))
 
 ;; files are different from resources
 (def directory (io/file "resources/music_day_files"))
@@ -28,15 +29,25 @@
   []
   (int (read-string (f/unparse custom-formatter (l/local-now)))))
 
+
+
 (defn schedule
   "Return the schedule of the practice."
   []
   (slurp schedule-data))
 
+(defn choose-item-from-file
+  "Return one line of a file."
+  [io-resource]
+  (let [file-contents (slurp io-resource)
+        vector-of-strings (string/split file-contents #"\n")]
+    (nth vector-of-strings (rs/rand-int (- (count vector-of-strings) 1)))))
+
 (defn day-practice
   "Return the day's practice."
   []
-  (str "day practice\n"))
+  (str "day practice\n"
+       (choose-item-from-file keys-data) "\n"))
 
 (defn key-practice
   "Return the key's practice."
@@ -60,13 +71,13 @@
   (let [seed seed-from-day-of-year]
     (println "-----------------")
     (println (str (schedule)
+                  (rs/set-random-seed! (seed))
                   (day-practice)
                   (key-practice)
                   (chord-method-practice)
                   (hand-independence-practice)
                   (f/unparse custom-formatter (l/local-now)) "\n"
                   (seed) "\n"
-                  (rs/set-random-seed! (seed))
                   (rs/rand-int 32) "\n"
                   (rs/rand-int 32) "\n"
                   (rs/rand-int 32) "\n"
